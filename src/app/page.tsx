@@ -3,7 +3,8 @@ import ModeToggle from '@/components/ui/ModeToggle'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 import React from 'react'
 
-function Home() {
+async function Home() {
+  
   return (
     <div>
       <h1>Home page</h1>
