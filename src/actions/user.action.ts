@@ -11,12 +11,12 @@ export async function syncUser() {
         if (!userId || !user) return;
 
         const existingUser = await prisma.user.findUnique({
-            where:{
-                clerkId : userId
+            where: {
+                clerkId: userId
             }
         })
 
-        if(existingUser) return existingUser
+        if (existingUser) return existingUser
 
         const dbUser = await prisma.user.create({
             data: {
@@ -30,21 +30,21 @@ export async function syncUser() {
 
         return dbUser
     } catch (error) {
-        console.log("Error in syncUser",error);
+        console.log("Error in syncUser", error);
     }
 }
 
-export async function getUserByClerkId(clerkId:string) {
+export async function getUserByClerkId(clerkId: string) {
     return prisma.user.findUnique({
-        where : {
-            clerkId : clerkId
+        where: {
+            clerkId: clerkId
         },
-        include : {
-            _count : {
-                select : {
-                    followers : true,
-                    following : true,
-                    posts : true
+        include: {
+            _count: {
+                select: {
+                    followers: true,
+                    following: true,
+                    posts: true
                 }
             }
         }
@@ -52,12 +52,63 @@ export async function getUserByClerkId(clerkId:string) {
 }
 
 export async function getDbUserId() {
-    const {userId: clerkId} = await auth()
-    if(!clerkId) throw new Error("Unauthorized User")
+    const { userId: clerkId } = await auth()
+    if (!clerkId) throw new Error("Unauthorized User")
 
     const user = await getUserByClerkId(clerkId)
 
-    if(!user) throw new Error("User not found")
+    if (!user) throw new Error("User not found")
 
-    return user.id 
+    return user.id
+}
+
+export async function getRandomUsers() {
+    try {
+        const userId = await getDbUserId()
+        if (!userId) return []
+        const randomUsers = await prisma.user.findMany({
+            where: {
+                AND: [
+                    { NOT: { id: userId } },
+                    {
+                        NOT: {
+                            followers: {
+                                some: {
+                                    followerId: userId,
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                image: true,
+                _count: {
+                    select: {
+                        followers: true
+                    }
+                }
+            },
+            take: 5
+        })
+
+        return randomUsers
+    } catch (error) {
+        console.log("Error fetching random users", error);
+        return [];
+    }
+}
+
+export async function toggleFollow(targetUserId: string) {
+    try {
+        const userId = await getDbUserId()
+        if (userId === targetUserId) throw new Error("You cannot follow yourself")
+
+        
+    } catch (error) {
+
+    }
 }
