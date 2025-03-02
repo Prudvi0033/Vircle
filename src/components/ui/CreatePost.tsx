@@ -6,6 +6,8 @@ import { Avatar, AvatarImage } from '@radix-ui/react-avatar'
 import { Textarea } from './textarea'
 import { Button } from './button'
 import { ImageIcon, Loader2Icon, SendIcon } from 'lucide-react'
+import { createPost } from '@/actions/post.action'
+import toast from 'react-hot-toast'
 
 function CreatePost() {
   const { user } = useUser()
@@ -14,16 +16,23 @@ function CreatePost() {
   const [isPosting, setIsPosting] = useState(false)
   const [showUploadedImage, setShowUploadedImage] = useState(false)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
       if(!content.trim() && !imageUrl){
         return
       }
 
       setIsPosting(true)
       try {
-        
+        const post = await createPost(content, imageUrl)
+        if(post.sucess){ //reset form
+          setContent("")
+          setImageUrl("")
+          setShowUploadedImage(false)
+          setIsPosting(false)
+          toast.success("Created Post")
+        }
       } catch (error) {
-        
+        toast.error("Failed Creating Post")
       }
   }
 
