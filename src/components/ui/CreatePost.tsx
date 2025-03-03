@@ -2,7 +2,7 @@
 import { useUser } from '@clerk/nextjs'
 import React, { useState } from 'react'
 import { Card, CardContent } from './card'
-import { Avatar, AvatarImage } from '@radix-ui/react-avatar'
+import { Avatar, AvatarImage } from './avatar'
 import { Textarea } from './textarea'
 import { Button } from './button'
 import { ImageIcon, Loader2Icon, SendIcon } from 'lucide-react'
@@ -24,7 +24,7 @@ function CreatePost() {
       setIsPosting(true)
       try {
         const post = await createPost(content, imageUrl)
-        if(post.sucess){ //reset form
+        if(post?.sucess){ //reset form
           setContent("")
           setImageUrl("")
           setShowUploadedImage(false)
