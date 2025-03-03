@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { Button } from './button'
 import { Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { toggleFollow } from '@/actions/user.action'
 
 function FollowButton({userId} : {userId : string}) {
 
