@@ -5,63 +5,65 @@ import { getDbUserId } from "./user.action"
 
 export async function getNotifications() {
     try {
-        const userId = await getDbUserId()
-        if(!userId) return []
-
-        const notifications = await prisma.notification.findMany({
-            where : {
-                userId : userId
+      const userId = await getDbUserId();
+      if (!userId) return [];
+  
+      const notifications = await prisma.notification.findMany({
+        where: {
+          userId,
+        },
+        include: {
+          creator: {
+            select: {
+              id: true,
+              name: true,
+              username: true,
+              image: true,
             },
-            include : {
-                creator : {
-                    select : {
-                        id : true,
-                        name : true,
-                        username : true,
-                        image : true
-                    }
-                },
-                post : {
-                    select : {
-                        id : true,
-                        content : true,
-                        image : true
-                    }
-                },
-                comment : {
-                    select : {
-                        id : true,
-                        content : true,
-                        createdAt : true
-                    }
-                }
+          },
+          post: {
+            select: {
+              id: true,
+              content: true,
+              image: true,
             },
-            orderBy : {
-                createdAt : 'asc'
-            }
-        })
-
-        return notifications
+          },
+          comment: {
+            select: {
+              id: true,
+              content: true,
+              createdAt: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+  
+      return notifications;
     } catch (error) {
-        console.log("Error in getting notifications",error);
+      console.error("Error fetching notifications:", error);
+      throw new Error("Failed to fetch notifications");
     }
-}
-
-export async function markNotificationsAsRead(notifications : []) {
+  }
+  
+  export async function markNotificationsAsRead(notificationIds: string[]) {
     try {
-        await prisma.notification.updateMany({
-            where : {
-                id : {
-                    in : notifications
-                },
-            },
-            data : {
-                read : true
-            }
-        })
-        return  {success : true}
+      await prisma.notification.updateMany({
+        where: {
+          id: {
+            in: notificationIds,
+          },
+        },
+        data: {
+          read: true,
+        },
+      });
+  
+      return { success: true };
     } catch (error) {
-        console.log("Error in reading notifications",error);
-        return {sucess : false}
+      console.error("Error marking notifications as read:", error);
+      return { success: false };
     }
-}
+  }
